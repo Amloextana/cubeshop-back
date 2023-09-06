@@ -1,4 +1,70 @@
 .order-text {
-  font-size: 20px;
+    font-size: 20px;
 }
 
+.card {
+    width: 390px; /* Установите желаемую ширину карточки */
+    height: 500px; /* Установите фиксированную высоту карточки */
+    margin: 20px 10px; /* Установите отступы между карточками по горизонтали и вертикали */
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center; /* Центрирование содержимого */
+    display: inline-block; /* Элементы будут выстраиваться в горизонтальный ряд */
+    vertical-align: top; /* Выравнивание по верхнему краю (чтобы карточки были одной высоты) */
+}
+
+.card-image {
+    width: 100%;
+    height: 60%; /* Установите желаемую высоту изображения (половина фиксированной высоты карточки) */
+    background-color: #007bff; /* Светло-синяя заливка фона (если картинка не заполнит всю ширину) */
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%; /* Изображение будет занимать всю высоту блока .card-image */
+}
+
+.card-content {
+    height: 50%; /* Установите высоту контента (половина фиксированной высоты карточки) */
+    padding: 20px;
+    background-color: #42f59c;
+    color: #000; /* Черный цвет текста на фоне */
+    overflow: hidden; /* Скрыть лишний контент, если он не помещается в высоту блока */
+}
+
+.card-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.card-text {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.btn-container {
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-buy {
+    background-color: #f55442; /* Красная кнопка "Купить" */
+    color: #fff;
+}
+
+.btn-info {
+    background-color: #17a2b8; /* Голубая кнопка "Больше информации" */
+    color: #fff;
+}
