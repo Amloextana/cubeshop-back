@@ -5,13 +5,18 @@
 {% block title %}Список товаров{% endblock %}
 
 {% block content %}
-
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="max_price">Максимальная цена:</label>
+        <input id="max_price" name="max_price" type="text"><br><br>
+        <input type="submit" value="Фильтровать по цене">
+    </form>
     {% for product in products %}
         <div class="card">
         <div class="card-image"><img src="{% static product.image_url %}" alt="{{ product.title }}"></div>
             <div class="card-content">
             <h2 class="card-title">{{ product.title }}</h2>
-            <p class="card-text">{{ product.description }}</p>
+            <p class="card-text">{{ product.price }}₽</p>
             <div class="btn-container">
                 <button class="btn btn-buy">Купить</button>
                 <a class="btn btn-info" href="{% url 'order_detail' product.id %}">Больше информации</a>

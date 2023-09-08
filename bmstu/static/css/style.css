@@ -10,7 +10,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     overflow: hidden;
-    text-align: center; /* Центрирование содержимого */
+
     display: inline-block; /* Элементы будут выстраиваться в горизонтальный ряд */
     vertical-align: top; /* Выравнивание по верхнему краю (чтобы карточки были одной высоты) */
 }
@@ -38,15 +38,17 @@
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 10px;
+    text-align: left; /* Центрирование содержимого */
 }
 
 .card-text {
     font-size: 16px;
     margin-bottom: 20px;
+    text-align: left; /* Центрирование содержимого */
 }
 
 .btn-container {
-    text-align: center;
+    text-align: left;
 }
 
 .btn {
