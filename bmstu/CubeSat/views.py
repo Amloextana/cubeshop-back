@@ -22,10 +22,11 @@ def GetOrders(request):
 
 
 def GetOrder(request, id):
-    return render(request, 'order.html', {'data' : {
-        'current_date': date.today(),
-        'id': id
-    }})
+    return render(request, 'order.html', {'products': [
+        {'title': 'Книга с картинками', 'price': 6500, 'image_url': 'images/CUBE1.jpg', 'id': 1},
+        {'title': 'Бутылка с водой', 'price': 5200, 'image_url': 'images/CS2.jpg', 'id': 2},
+        {'title': 'Коврик для мышки', 'price': 8400, 'image_url': 'images/CS3.jpg', 'id': 3},
+    ]})
 
 
 
