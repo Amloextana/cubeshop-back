@@ -1,0 +1,31 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
+<body class="body">
+ <header class="header">
+    <button class="button" onclick="history.back()">Назад</button>
+  <h1 class="h1">Описание товара</h1>
+ </header>
+
+ <main>
+
+ <img class="img-for-description" src="{% static product.image_url %}" alt="{{ product.title }}">
+
+
+  <div class="description">
+   <h1 class="h1">{{ product.title }}</h1>
+   <p class="p">Цена: {{product.price}} руб.</p>
+   <p class="p">{{ product.description | linebreaks }}</p>
+   <ul>
+   {% for key, value in product.details.items %}
+       <li>{{ key }}: {{ value }}</li>
+   {% endfor %}
+   </ul>
+
+  </div>
+ </main>
+</body>
+{% endblock %}

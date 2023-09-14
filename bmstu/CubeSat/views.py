@@ -1,43 +1,28 @@
-from django.http import HttpResponse
 from django.shortcuts import render
-from datetime import date
 
 
 products = [
-        {'title': 'Корпус CubeSat 1U', 'price': 6500, 'image_url': 'images/CS1.jpg', 'id': 1},
-        {'title': 'Система энергопитания', 'price': 5200, 'image_url': 'images/CS2.jpg', 'id': 2},
-        {'title': 'Солнечная панель с GaAs', 'price': 8400, 'image_url': 'images/CS3.jpg', 'id': 3},
+        {'details': {'Высота': 105, 'Ширина': 100, 'Длинна': 100, 'Посадочные места стека плат': 'PC/104', 'Пружины-толкатели': '2шт', 'Размыкатели системы отделения': '2шт'}, 'title': 'Корпус CubeSat 1U', 'price': 6500, 'image_url': 'images/CS1.jpg', 'id': 1, 'description': "Солнечная панель Sputnix Orbicraft-Pro SXC-SGS-03 использует GaAs (арсенид галлия) фотоэлектрические преобразователи и встроенные электромагнитные катушки.\nПанель предназначена для установки на боковую кромку корпуса формата 1U CubeSat. Несколько панелей могут быть объединены для установки на боковые кромки корпуса формата 3U. Панель имеет встроенную электромагнитную катушку, которая может быть задействована в системе ориентации и стабилизации аппарата."},
+        {'details': {'Тип солнечных панелей': 'GaAs, Si', 'Напряжение солнечных панелей': '3..6B', 'Максимальный ток солнечной панели в канале': '1500мА', 'Максимальный суммарный ток солнечных панелей': '3000мА', 'Тип батареи': 'LiFePO4, Li-Ion'}, 'title': 'Система энергопитания', 'price': 5200, 'image_url': 'images/CS2.jpg', 'id': 2, 'description': "Система энергопитания SXC-PSU-03 управляет энергопитанием спутника от аккумуляторного блока SXC-BAT-03 и панелей солнечных батарей (обычно SXC-SSS-03, SXC-SSE-03, SXC-SGS-03 или SXC-SGE-03), которые могут подключаться в количестве до 14 штук. Контакт для зарядки внешних аккумуляторов находится на разъеме PC104 и, как правило, соединяется с разъемом USB сервисной панели SXC-SP-03. Для обмена данных с аккумуляторным блоком используется специальный интерфейс.\nСистема энергопитания позволяет использовать солнечные панели со встроенными электромагнитными катушками. На плате системы энергопитания находятся три входных разъема для солнечных панелей, по одному разъему на ось спутника. Солнечные панели каждой оси соединены между собой кабельной системой и подключаются к отдельному разъему. Это позволяет наращивать катушки, встроенные в каждую солнечную панель, для суммирования их магнитных полей. Подключение катушек к драйверам производится через разъем PC104. Зарядные устройства использую алгоритм отслеживания точки максимальной мощности (MPPT, окончания зарядки) и поддерживают два типа фотоэлементов: GaAs и Si при условии правильного уровня напряжения."},
+        {'details': {'Интерфейс': 'Hirose GT8E разъемы, масштабируемые', 'Напряжение открытой цепи (Voc)': '5.3B', 'Ток короткого замыкания (Isc)': '500мА', 'Ток при максимальной мощности (Imp)': '480 мA', 'Сопротивление катушки': '200 Ом'}, 'title': 'Солнечная панель с GaAs', 'price': 8400, 'image_url': 'images/CS3.jpg', 'id': 3, 'description': "Солнечная панель Sputnix Orbicraft-Pro SXC-SGS-03 использует GaAs (арсенид галлия) фотоэлектрические преобразователи и встроенные электромагнитные катушки.\nПанель предназначена для установки на боковую кромку корпуса формата 1U CubeSat. Несколько панелей могут быть объединены для установки на боковые кромки корпуса формата 3U. Панель имеет встроенную электромагнитную катушку, которая может быть задействована в системе ориентации и стабилизации аппарата."},
     ]
 
 
-def hello(request):
-    return render(request, 'index.html', { 'data' : {
-        'current_date': date.today(),
-        'list': ['python', 'django', 'html']
-    }})
-
-
-def GetOrders(request):
-    return render(request, 'orders.html', {'data': {
-        'current_date': date.today(),
-        'orders': products
-    }})
-
-
-def GetOrder(request, id):
-
-    # проходим по списку словарей
+def GetDetail(request, id):
     for my_dict in products:
-        # проверяем, есть ли нужный id в текущем словаре
         if my_dict['id'] == id:
-            # если да, выводим соответствующий текст
             print(my_dict['title'])
-            return render(request, 'order.html', {'my_dict': my_dict})
+            return render(request, 'detail.html', {'product': my_dict})
 
 
-def product_list(request):
-    return render(request, 'product_list.html', {'products': products})
-
-
-def sendText(request):
-    input_text = request.POST['text']
+def GetDetails(request):
+    local_products = products[:]
+    if request.method == 'GET':
+        max_price = request.GET.get('max_price', None)
+        if max_price is not None:
+            try:
+                max_price = int(max_price)
+                local_products = [product for product in local_products if product['price'] <= max_price]
+            except ValueError:
+                pass
+    return render(request, 'details.html', {'products': local_products})
