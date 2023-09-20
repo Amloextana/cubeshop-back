@@ -42,23 +42,26 @@ class Request(models.Model):
 
 
 class Product(models.Model):
+
+    class ProductCategoryChoices(models.TextChoices):
+        POWER_MODULES = "Power Modules"
+        STRUCTURES = "Structures"
+        SOLAR_PANELS = "Solar Panels"
+
     name = models.CharField(max_length=50)
     description = models.TextField()
     price = models.IntegerField()
     is_active = models.BooleanField(default=True)
+ #   category_of_product = models.CharField(max_length=30, choices=ProductCategoryChoices.choices, default=S)
+  #  id_in_category = models.CharField()
 
 
-class Property(models.Model):
-    name = models.CharField(max_length=255)
-    type = models.CharField(max_length=255)
-
-
-class ProductProperty(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    value = models.CharField(max_length=255)
+class PowerModules(models.Model):
+    voltage = models.IntegerField()
+    max_current_of_solar_panel = models.IntegerField()
 
 
 class RequestsToDetails(models.Model):
     request = models.ForeignKey(Request, on_delete=models.CASCADE)
     detail = models.ForeignKey(Product, on_delete=models.CASCADE)
+

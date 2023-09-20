@@ -82,6 +82,9 @@ DATABASES = {
         'PASSWORD': '123456',
         'HOST': 'localhost',
         'PORT': '5432',
+        'OPTIONS': {
+            'options': '-c client_encoding=utf8',  # Установка кодировки utf8
+        },
     }
 }
 
