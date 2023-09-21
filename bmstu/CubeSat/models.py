@@ -6,12 +6,16 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         abstract = True
 
 
 class Customer(User):
-    pass
+    class Meta:
+        verbose_name_plural = "Покупатели"
 
 
 class Employer(User):
@@ -23,8 +27,10 @@ class Employer(User):
     position = models.CharField(max_length=30, choices=PositionChoices.choices, default=PositionChoices.JUNIOR_MANAGER)
     is_manager = models.BooleanField(default=True)
 
+    class Meta:
+        verbose_name_plural = "Сотрудники"
 
-class Request(models.Model):
+class Orders(models.Model):
 
     class StatusChoices(models.TextChoices):
         PENDING = 'Pending'
@@ -40,9 +46,11 @@ class Request(models.Model):
     moderator = models.ForeignKey(Employer, on_delete=models.SET_NULL, null=True, blank=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
 
+    class Meta:
+        verbose_name_plural = "Заказы"
+
 
 class Product(models.Model):
-
     class ProductCategoryChoices(models.TextChoices):
         POWER_MODULES = "Power Modules"
         STRUCTURES = "Structures"
@@ -52,16 +60,56 @@ class Product(models.Model):
     description = models.TextField()
     price = models.IntegerField()
     is_active = models.BooleanField(default=True)
- #   category_of_product = models.CharField(max_length=30, choices=ProductCategoryChoices.choices, default=S)
-  #  id_in_category = models.CharField()
+    category_of_product = models.CharField(max_length=30, choices=ProductCategoryChoices.choices)
+    id_in_category = models.CharField()  # change to FK
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Детали"
+
+
+class OrdersToProducts(models.Model):
+    request = models.ForeignKey(Orders, on_delete=models.CASCADE)
+    detail = models.ForeignKey(Product, on_delete=models.CASCADE)
 
 
 class PowerModules(models.Model):
-    voltage = models.IntegerField()
-    max_current_of_solar_panel = models.IntegerField()
+    name = models.CharField()
+    voltage = models.DecimalField(max_digits=16, decimal_places=2)  # В, V
+    max_total_current_of_solar_panel = models.IntegerField()  # мА, mA
+    max_current_of_solar_panel_in_channel = models.DecimalField(max_digits=16, decimal_places=2)  # мА, mA
+    max_power_consumption = models.DecimalField(max_digits=16, decimal_places=2)  # Вт, w
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Блоки питания"
 
 
-class RequestsToDetails(models.Model):
-    request = models.ForeignKey(Request, on_delete=models.CASCADE)
-    detail = models.ForeignKey(Product, on_delete=models.CASCADE)
+class Structures(models.Model):
+    name = models.DecimalField(max_digits=16, decimal_places=2)
+    length = models.DecimalField(max_digits=16, decimal_places=2)
+    width = models.DecimalField(max_digits=16, decimal_places=2)
+    height = models.DecimalField(max_digits=16, decimal_places=2)
+    amount_of_push_springs = models.IntegerField()
+    min_operating_temperature = models.DecimalField(max_digits=16, decimal_places=2)
+    max_operating_temperature = models.DecimalField(max_digits=16, decimal_places=2)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Корпусы"
+
+
+class SolarPanels(models.Model):
+    name = models.CharField()
+    type_of_element = models.CharField()
+    open_circuit_voltage = models.DecimalField(max_digits=16, decimal_places=2)
+    short_circuit_current = models.DecimalField(max_digits=16, decimal_places=2)
+
+    class Meta:
+        verbose_name_plural = "Солнечные панели"
