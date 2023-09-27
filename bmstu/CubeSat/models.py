@@ -2,7 +2,7 @@ from django.db import models
 import os
 
 class User(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(verbose_name="имя")
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
 
@@ -18,7 +18,7 @@ class Customer(User):
         verbose_name_plural = "Покупатели"
 
 
-class Employer(User):
+class Employee(User):
 
     class PositionChoices(models.TextChoices):
         JUNIOR_MANAGER = 'Junior manager'
@@ -44,7 +44,7 @@ class Orders(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     formed_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    moderator = models.ForeignKey(Employer, on_delete=models.SET_NULL, null=True)
+    moderator = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -63,7 +63,7 @@ class Products(models.Model):
     description = models.TextField()
     price = models.IntegerField()
     is_active = models.BooleanField(default=True)
-    category_ref = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
+    category_ref = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True)
     image = models.ImageField(upload_to='CubeSat/static/images/')
 
     def __str__(self):
@@ -75,20 +75,21 @@ class Products(models.Model):
 
 class Attributes(models.Model):
     attribute_name = models.CharField()
-    category_ref = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
+    category_ref = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.attribute_name
 
 
 class AttributesValues(models.Model):
+    id = models.AutoField(primary_key=True)
     attribute_value = models.CharField()
-    attribute_ref = models.ForeignKey(Attributes, on_delete=models.SET_NULL, null=True)
-    product_ref = models.ForeignKey(Products, on_delete=models.SET_NULL, null=True)
+    attribute_ref = models.ForeignKey(Attributes, on_delete=models.CASCADE, null=True)
+    product_ref = models.ForeignKey(Products, on_delete=models.CASCADE, null=True)
 
 
 class OrdersToProducts(models.Model):
-    request = models.ForeignKey(Orders, on_delete=models.CASCADE)
-    detail = models.ForeignKey(Products, on_delete=models.CASCADE)
+    product_ref = models.ForeignKey(Orders, on_delete=models.CASCADE)
+    order_ref = models.ForeignKey(Products, on_delete=models.CASCADE)
 
 

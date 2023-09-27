@@ -31,15 +31,30 @@ def GetProductDetail(request, id):
     cur.execute('SELECT name, description, price, image FROM "CubeSat_products" WHERE id = %s ', (id,))
     result = cur.fetchone()
     cur.close()
-    conn.close()
+
+    def get_cube_sat_attributes(product_id):
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT a.attribute_name, v.attribute_value
+                FROM "CubeSat_attributesvalues" v
+                INNER JOIN "CubeSat_attributes" a ON v.attribute_ref_id = a.id
+                WHERE v.product_ref_id = %s;
+            """, [product_id])
+            rows = cursor.fetchall()
+        attributes_dict = {}
+        for row in rows:
+            attributes_dict[row[0]] = row[1]
+        return attributes_dict
 
     if result:
+        attrib_dict = get_cube_sat_attributes(id)
         product = {
             'title': result[0],
             'description': result[1],
             'price': result[2],
             'image_url': result[3].split('static/', 1)[-1],
             'id': id,
+            'details': attrib_dict
         }
         return render(request, 'detail.html', {'product': product})
     else:
