@@ -45,7 +45,9 @@
 }
 
 .btn-container {
-    text-align: left;
+
+    display: inline-block;
+    margin-right: 5px;
 }
 
 .btn {
@@ -64,7 +66,13 @@
 }
 
 .btn-info {
-    background-color: #17a2b8; /* Голубая кнопка "Больше информации" */
+    background-color: #17a2b8;
+    color: #fff;
+    text-decoration: none
+}
+
+.btn-del {
+    background-color: #cc233f;
     color: #fff;
     text-decoration: none
 }

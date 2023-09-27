@@ -1,5 +1,5 @@
 from django.db import models
-
+import os
 
 class User(models.Model):
     name = models.CharField(max_length=100)
@@ -30,6 +30,7 @@ class Employer(User):
     class Meta:
         verbose_name_plural = "Сотрудники"
 
+
 class Orders(models.Model):
 
     class StatusChoices(models.TextChoices):
@@ -43,25 +44,27 @@ class Orders(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     formed_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    moderator = models.ForeignKey(Employer, on_delete=models.SET_NULL, null=True, blank=True)
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+    moderator = models.ForeignKey(Employer, on_delete=models.SET_NULL, null=True)
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         verbose_name_plural = "Заказы"
 
 
-class Product(models.Model):
-    class ProductCategoryChoices(models.TextChoices):
-        POWER_MODULES = "Power Modules"
-        STRUCTURES = "Structures"
-        SOLAR_PANELS = "Solar Panels"
+class Categories(models.Model):
+    category_name = models.CharField()
 
+    def __str__(self):
+        return self.category_name
+
+
+class Products(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
     price = models.IntegerField()
     is_active = models.BooleanField(default=True)
-    category_of_product = models.CharField(max_length=30, choices=ProductCategoryChoices.choices)
-    id_in_category = models.CharField()  # change to FK
+    category_ref = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
+    image = models.ImageField(upload_to='CubeSat/static/images/')
 
     def __str__(self):
         return self.name
@@ -70,46 +73,22 @@ class Product(models.Model):
         verbose_name_plural = "Детали"
 
 
+class Attributes(models.Model):
+    attribute_name = models.CharField()
+    category_ref = models.ForeignKey(Categories, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return self.attribute_name
+
+
+class AttributesValues(models.Model):
+    attribute_value = models.CharField()
+    attribute_ref = models.ForeignKey(Attributes, on_delete=models.SET_NULL, null=True)
+    product_ref = models.ForeignKey(Products, on_delete=models.SET_NULL, null=True)
+
+
 class OrdersToProducts(models.Model):
     request = models.ForeignKey(Orders, on_delete=models.CASCADE)
-    detail = models.ForeignKey(Product, on_delete=models.CASCADE)
+    detail = models.ForeignKey(Products, on_delete=models.CASCADE)
 
 
-class PowerModules(models.Model):
-    name = models.CharField()
-    voltage = models.DecimalField(max_digits=16, decimal_places=2)  # В, V
-    max_total_current_of_solar_panel = models.IntegerField()  # мА, mA
-    max_current_of_solar_panel_in_channel = models.DecimalField(max_digits=16, decimal_places=2)  # мА, mA
-    max_power_consumption = models.DecimalField(max_digits=16, decimal_places=2)  # Вт, w
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "Блоки питания"
-
-
-class Structures(models.Model):
-    name = models.DecimalField(max_digits=16, decimal_places=2)
-    length = models.DecimalField(max_digits=16, decimal_places=2)
-    width = models.DecimalField(max_digits=16, decimal_places=2)
-    height = models.DecimalField(max_digits=16, decimal_places=2)
-    amount_of_push_springs = models.IntegerField()
-    min_operating_temperature = models.DecimalField(max_digits=16, decimal_places=2)
-    max_operating_temperature = models.DecimalField(max_digits=16, decimal_places=2)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "Корпусы"
-
-
-class SolarPanels(models.Model):
-    name = models.CharField()
-    type_of_element = models.CharField()
-    open_circuit_voltage = models.DecimalField(max_digits=16, decimal_places=2)
-    short_circuit_current = models.DecimalField(max_digits=16, decimal_places=2)
-
-    class Meta:
-        verbose_name_plural = "Солнечные панели"

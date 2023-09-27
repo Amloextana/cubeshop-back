@@ -8,7 +8,7 @@ Function views
     1. Add an import:  from my_app import views
     2. Add a URL to urlpatterns:  path('', views.home, name='home')
 Class-based views
-    1. Add an import:  from other_app.views import Home
+    1. Add an import:  from other_app.views import HomeF
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
@@ -21,6 +21,7 @@ from CubeSat import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.GetDetails, name='product_list'),
-    path('order/<int:id>/', views.GetDetail, name='order_detail'),
+    path('', views.ProductList, name='product_list'),
+    path('order/<int:id>/', views.GetProductDetail, name='product_detail'),
+    path('deactivate/<int:product_id>/', views.deactivate_product, name='deactivate_product'),
 ]

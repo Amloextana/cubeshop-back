@@ -22,12 +22,12 @@
             <h2 class="card-title">{{ product.title }}</h2>
             <p class="card-text">{{ product.price }}₽</p>
             <div class="btn-container">
-                <a class="btn btn-info" href="{% url 'order_detail' product.id %}">Больше информации</a>
+                <a class="btn btn-info" href="{% url 'product_detail' product.id %}">Подробнее</a>
+                <a class="btn btn-del" href="{% url 'deactivate_product' product.id %}">Удалить</a>
             </div>
             </div>
     </div>
     {% endfor %}
 
 {% endblock %}
-
 

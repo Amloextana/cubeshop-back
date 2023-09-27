@@ -1,22 +1,69 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+import psycopg2
+from django.conf import settings
+from django.http import HttpResponseNotFound
+
+def create_connect():
+    db_settings = settings.DATABASES['default']
+    conn = psycopg2.connect(
+        dbname=db_settings['NAME'],
+        user=db_settings['USER'],
+        password=db_settings['PASSWORD'],
+        host=db_settings['HOST'],
+        port=db_settings['PORT'],
+    )
+    return conn
 
 
-products = [
-        {'details': {'Высота': 105, 'Ширина': 100, 'Длинна': 100, 'Посадочные места стека плат': 'PC/104', 'Пружины-толкатели': '2шт', 'Размыкатели системы отделения': '2шт'}, 'title': 'Корпус CubeSat 1U', 'price': 6500, 'image_url': 'images/CS1.jpg', 'id': 1, 'description': "Солнечная панель Sputnix Orbicraft-Pro SXC-SGS-03 использует GaAs (арсенид галлия) фотоэлектрические преобразователи и встроенные электромагнитные катушки.\nПанель предназначена для установки на боковую кромку корпуса формата 1U CubeSat. Несколько панелей могут быть объединены для установки на боковые кромки корпуса формата 3U. Панель имеет встроенную электромагнитную катушку, которая может быть задействована в системе ориентации и стабилизации аппарата."},
-        {'details': {'Тип солнечных панелей': 'GaAs, Si', 'Напряжение солнечных панелей': '3..6B', 'Максимальный ток солнечной панели в канале': '1500мА', 'Максимальный суммарный ток солнечных панелей': '3000мА', 'Тип батареи': 'LiFePO4, Li-Ion'}, 'title': 'Система энергопитания', 'price': 5200, 'image_url': 'images/CS2.jpg', 'id': 2, 'description': "Система энергопитания SXC-PSU-03 управляет энергопитанием спутника от аккумуляторного блока SXC-BAT-03 и панелей солнечных батарей (обычно SXC-SSS-03, SXC-SSE-03, SXC-SGS-03 или SXC-SGE-03), которые могут подключаться в количестве до 14 штук. Контакт для зарядки внешних аккумуляторов находится на разъеме PC104 и, как правило, соединяется с разъемом USB сервисной панели SXC-SP-03. Для обмена данных с аккумуляторным блоком используется специальный интерфейс.\nСистема энергопитания позволяет использовать солнечные панели со встроенными электромагнитными катушками. На плате системы энергопитания находятся три входных разъема для солнечных панелей, по одному разъему на ось спутника. Солнечные панели каждой оси соединены между собой кабельной системой и подключаются к отдельному разъему. Это позволяет наращивать катушки, встроенные в каждую солнечную панель, для суммирования их магнитных полей. Подключение катушек к драйверам производится через разъем PC104. Зарядные устройства использую алгоритм отслеживания точки максимальной мощности (MPPT, окончания зарядки) и поддерживают два типа фотоэлементов: GaAs и Si при условии правильного уровня напряжения."},
-        {'details': {'Интерфейс': 'Hirose GT8E разъемы, масштабируемые', 'Напряжение открытой цепи (Voc)': '5.3B', 'Ток короткого замыкания (Isc)': '500мА', 'Ток при максимальной мощности (Imp)': '480 мA', 'Сопротивление катушки': '200 Ом'}, 'title': 'Солнечная панель с GaAs', 'price': 8400, 'image_url': 'images/CS3.jpg', 'id': 3, 'description': "Солнечная панель Sputnix Orbicraft-Pro SXC-SGS-03 использует GaAs (арсенид галлия) фотоэлектрические преобразователи и встроенные электромагнитные катушки.\nПанель предназначена для установки на боковую кромку корпуса формата 1U CubeSat. Несколько панелей могут быть объединены для установки на боковые кромки корпуса формата 3U. Панель имеет встроенную электромагнитную катушку, которая может быть задействована в системе ориентации и стабилизации аппарата."},
-    ]
+def deactivate_product(request, product_id):
+    conn = create_connect()
+    cur = conn.cursor()
+    cur.execute('UPDATE "CubeSat_products" SET is_active = False WHERE id = %s', (product_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return redirect('product_list')
 
 
-def GetDetail(request, id):
-    for my_dict in products:
-        if my_dict['id'] == id:
-            print(my_dict['title'])
-            return render(request, 'detail.html', {'product': my_dict})
+def GetProductDetail(request, id):
+    conn = create_connect()
+    cur = conn.cursor()
+    cur.execute('SELECT name, description, price, image FROM "CubeSat_products" WHERE id = %s ', (id,))
+    result = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    if result:
+        product = {
+            'title': result[0],
+            'description': result[1],
+            'price': result[2],
+            'image_url': result[3].split('static/', 1)[-1],
+            'id': id,
+        }
+        return render(request, 'detail.html', {'product': product})
+    else:
+        return HttpResponseNotFound("Продукт не найден")
 
 
-def GetDetails(request):
-    local_products = products[:]
+def ProductList(request):
+    conn = create_connect()
+    cur = conn.cursor()
+    cur.execute('SELECT id, name, description, price, image FROM "CubeSat_products" WHERE is_active = True')
+    results = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    local_products = []
+    for result in results:
+        local_products.append({
+            'id': result[0],
+            'title': result[1],
+            'description': result[2],
+            'price': result[3],
+            'image_url': result[4].split('static/', 1)[-1],
+        })
+
     if request.method == 'GET':
         max_price = request.GET.get('max_price', None)
         if max_price is not None:
@@ -25,4 +72,6 @@ def GetDetails(request):
                 local_products = [product for product in local_products if product['price'] <= max_price]
             except ValueError:
                 pass
+
     return render(request, 'details.html', {'products': local_products})
+
