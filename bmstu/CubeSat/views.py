@@ -1,7 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 import psycopg2
 from django.conf import settings
 from django.http import HttpResponseNotFound
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import ProductsSerializer
+from .models import Products
+
 
 def create_connect():
     db_settings = settings.DATABASES['default']
@@ -90,3 +95,10 @@ def ProductList(request):
 
     return render(request, 'details.html', {'products': local_products})
 
+
+@api_view(['Get'])
+def get_list(request, format=None):
+    print('get')
+    products = Products.objects.all()
+    serializer = ProductsSerializer(products, many=True)
+    return Response(serializer.data)

@@ -1,8 +1,6 @@
-from django.contrib import admin
 from .models import *
-
-
 from django.contrib import admin
+
 
 class AttributesValuesInline(admin.TabularInline):
     model = AttributesValues
@@ -36,13 +34,14 @@ class OrdersToProductsInline(admin.TabularInline):  # Или StackedInline, в �
     extra = 1  # Это позволит добавлять несколько продуктов в заказ одновременно
 
 class OrdersAdmin(admin.ModelAdmin):
+    list_display = ('moderator', 'customer', 'formed_at', 'status')
     inlines = [OrdersToProductsInline]
 
 
 admin.site.register(Products, ProductsAdmin)
 admin.site.register(Categories, CategoriesAdmin)
-admin.site.register(AttributesValues)
+# admin.site.register(AttributesValues)
 admin.site.register(Orders, OrdersAdmin)
 admin.site.register(Customer)
 admin.site.register(Employee)
-admin.site.register(OrdersToProducts)
+# admin.site.register(OrdersToProducts)

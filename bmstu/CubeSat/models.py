@@ -57,6 +57,9 @@ class Categories(models.Model):
     def __str__(self):
         return self.category_name
 
+    class Meta:
+        verbose_name_plural = "Категории"
+
 
 class Products(models.Model):
     name = models.CharField(max_length=50)
@@ -91,5 +94,6 @@ class AttributesValues(models.Model):
 class OrdersToProducts(models.Model):
     product_ref = models.ForeignKey(Orders, on_delete=models.CASCADE)
     order_ref = models.ForeignKey(Products, on_delete=models.CASCADE)
+    amount = models.IntegerField(null=True, default=None)
 
 
