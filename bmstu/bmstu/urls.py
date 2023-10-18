@@ -24,6 +24,8 @@ urlpatterns = [
     path('', views.ProductList, name='product_list'),
     path('order/<int:id>/', views.GetProductDetail, name='product_detail'),
     path('deactivate/<int:product_id>/', views.deactivate_product, name='deactivate_product'),
-    path(r'products/', views.get_list, name='get_list'),
+    path(r'products/', views.get_list_of_products, name='get_list_of_products'),
+    path(r'orders/', views.get_list_of_orders, name='get_list_of_orders'),
+    path(r'add_product/', views.add_product_to_order, name='add_product_to_order'),
 
 ]

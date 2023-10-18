@@ -4,8 +4,8 @@ from django.conf import settings
 from django.http import HttpResponseNotFound
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import ProductsSerializer
-from .models import Products
+from .serializers import ProductsSerializer, OrderSerializer, OrdersToProductsSerializer
+from .models import Products, Orders, OrdersToProducts
 
 
 def create_connect():
@@ -97,8 +97,38 @@ def ProductList(request):
 
 
 @api_view(['Get'])
-def get_list(request, format=None):
+def get_list_of_products(request):
     print('get')
     products = Products.objects.all()
     serializer = ProductsSerializer(products, many=True)
     return Response(serializer.data)
+
+
+@api_view(['Get'])
+def get_list_of_orders(request):
+    orders = Orders.objects.all()
+    serializer = OrderSerializer(orders, many=True)
+    return Response(serializer.data)
+
+@api_view(['Post'])
+def add_product_to_order(request):
+    customer = 1
+
+    pending_order = Orders.objects.filter(customer=customer, status="Pending")
+
+    if not pending_order:
+        pending_order = Orders.object.create(customer=customer, status="Pending")
+
+
+
+    print(pending_order)
+
+    product_id = request.data.get('product_ref')
+    product_amount = request.data.get('amount')
+
+    return 0
+
+    serializer = OrdersToProductsSerializer(product_ref=product_id, amount=product_amount, order_ref=1)
+
+    return Response(serializer.data)
+
