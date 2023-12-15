@@ -18,7 +18,7 @@ class Customer(User):
         verbose_name_plural = "Покупатели"
 
 
-class Employee(User):
+class Moderator(User):
 
     class PositionChoices(models.TextChoices):
         JUNIOR_MANAGER = 'Junior manager'
@@ -44,7 +44,7 @@ class Orders(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     formed_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    moderator = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    moderator = models.ForeignKey(Moderator, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
 
     class Meta:
@@ -68,7 +68,7 @@ class Products(models.Model):
     is_active = models.BooleanField(default=True)
     category_ref = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True)
     image = models.ImageField(upload_to='CubeSat/static/images/')
-
+    product_image = models.BinaryField(blank=True, null=True)
     def __str__(self):
         return self.name
 
@@ -95,5 +95,3 @@ class OrdersToProducts(models.Model):
     product_ref = models.ForeignKey(Orders, on_delete=models.CASCADE)
     order_ref = models.ForeignKey(Products, on_delete=models.CASCADE)
     amount = models.IntegerField(null=True, default=None)
-
-

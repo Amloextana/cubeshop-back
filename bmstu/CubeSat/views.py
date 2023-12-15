@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 import psycopg2
 from django.conf import settings
 from django.http import HttpResponseNotFound
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import ProductsSerializer, OrderSerializer, OrdersToProductsSerializer
+from .serializers import ProductsSerializer, OrderSerializer, OrdersToProductsSerializer, OrderWithProductsSerializer
 from .models import Products, Orders, OrdersToProducts
 
 
@@ -61,7 +62,7 @@ def GetProductDetail(request, id):
             'id': id,
             'details': attrib_dict
         }
-        return render(request, 'detail.html', {'product': product})
+        return render(request, 'CubeSat/detail.html', {'product': product})
     else:
         return HttpResponseNotFound("Продукт не найден")
 
@@ -93,14 +94,23 @@ def ProductList(request):
             except ValueError:
                 pass
 
-    return render(request, 'details.html', {'products': local_products})
+    return render(request, 'CubeSat/details.html', {'products': local_products})
 
 
 @api_view(['Get'])
 def get_list_of_products(request):
-    print('get')
     products = Products.objects.all()
     serializer = ProductsSerializer(products, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['Get'])
+def get_product(request, id):
+    product = Products.objects.filter(pk=id).last()
+    if not product:
+        return Response("Выбран несуществующий продукт")
+
+    serializer = ProductsSerializer(product)
     return Response(serializer.data)
 
 
@@ -108,27 +118,91 @@ def get_list_of_products(request):
 def get_list_of_orders(request):
     orders = Orders.objects.all()
     serializer = OrderSerializer(orders, many=True)
+
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_order(request, id):
+    orders = Orders.objects.filter(pk=id).last()
+    if not orders:
+        return Response("Выбран несуществующий заказ")
+    serializer = OrderWithProductsSerializer(orders)
+    return Response(serializer.data)
+
+
+
+
+@api_view(['Put'])
+def update_price(request, id):
+    product = Products.objects.filter(pk=id).last()
+    if not product:
+        return Response("Выбран несуществующий продукт")
+    serializer = ProductsSerializer(product, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+
+    return Response(serializer.data)
+
+
+@api_view(['PUT'])
+def update_order_status(request, id):
+
+    order = Orders.objects.filter(pk=id).last()
+    if not order:
+        return Response("Выбран несуществующий заказ")
+
+    new_status = request.data.get('status')
+
+    if new_status in ['In Progress', 'Completed', 'Cancelled']:
+        order.status = new_status
+        order.save()
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+    else:
+        return Response({'error': 'Invalid status'}, status=400)
+
+
+# Добавление продукта к открытому заказу (если открытого заказа у пользователя нет, то создаем заказ)
+@api_view(["POST"])
+def add_product_to_order(request):
+    customer_id = 2
+    moderator_id = 1
+
+    product = Products.objects.get(pk=request.data.get("product_ref"))
+    if not product:
+        return Response("Выбран несуществующий продукт")
+
+    order = Orders.objects.get(status="Pending", customer=customer_id)
+    if not order:
+        order = Orders.objects.create(status="Pending", customer_id=customer_id,
+                                      moderator_id=moderator_id)
+
+    serializer = OrdersToProductsSerializer(data={"order_ref": order.pk, "product_ref": product.pk, "amount": request.data["amount"]})
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['Post'])
-def add_product_to_order(request):
-    customer = 1
-
-    pending_order = Orders.objects.filter(customer=customer, status="Pending")
-
-    if not pending_order:
-        pending_order = Orders.object.create(customer=customer, status="Pending")
-
+def add_product(request):
+    serializer = ProductsSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    print(pending_order)
-
-    product_id = request.data.get('product_ref')
-    product_amount = request.data.get('amount')
-
-    return 0
-
-    serializer = OrdersToProductsSerializer(product_ref=product_id, amount=product_amount, order_ref=1)
-
-    return Response(serializer.data)
+@api_view(['Delete'])
+def delete_product(request, id):
+    product = Products.objects.filter(pk=id).last()
+    if not product:
+        return Response("Выбран несуществующий продукт")
+    product_in_orders = OrdersToProducts.objects.filter(product_ref=id)
+    product_in_orders.delete()
+    product.is_active = False
+    product.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
