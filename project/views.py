@@ -311,6 +311,10 @@ def add_to_application(request, pk):
 @api_view(['PUT'])
 @permission_classes([AllowAny])
 def async_token(request, pk):
+    token = request.data.get('token', None)
+    if token is None or token != "my_secret_token":
+        return Response("Ошибка: неверный токен", status=status.HTTP_400_BAD_REQUEST)
+
     app = Applications.objects.filter(pk=pk).last()
     if not app:
         return Response("Выбран несуществующий заказ")
@@ -396,7 +400,13 @@ def update_by_user(request, pk):
 
     if int(request.data["status"]) in [3]:
         application.formed_at=timezone.now()
-    
+        url = 'http://127.0.0.1:5000/api/async_calc/'
+        data = {
+        'id_test': pk,
+        'token': 'my_secret_token'
+        }
+        application.completed_at=timezone.now()
+        response = requests.post(url, json=data)
 
     application.status = request_status
     application.save()
@@ -424,14 +434,7 @@ def update_by_admin(request, pk):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     application = Applications.objects.get(pk=pk)
-    if int(request.data["status"]) in [4]:
-        url = 'http://127.0.0.1:5000/api/async_calc/'
-        data = {
-        'id_test': pk,
-        'token': 'my_secret_token'
-        }
-        application.completed_at=timezone.now()
-        response = requests.post(url, json=data)
+
 
 
     application.moderator_id=user.id
