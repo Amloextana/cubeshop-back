@@ -15,17 +15,13 @@ class UserAppSerializer(serializers.ModelSerializer):
 
 class ComponentSerializer(serializers.ModelSerializer):
     class Meta:
-        # Модель, которую мы сериализуем
         model = Components
-        # Поля, которые мы сериализуем
         fields = "__all__"
  
 class ApplicationSerializer(serializers.ModelSerializer):
     customer = UserAppSerializer(read_only=True)
     class Meta:
-        # Модель, которую мы сериализуем
         model = Applications
-        # Поля, которые мы сериализуем
         fields = "__all__"
         
  
