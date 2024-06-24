@@ -41,7 +41,8 @@ class NewUserManager(UserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
-    
+
+
 class Users(AbstractBaseUser, PermissionsMixin): 
 
     email = models.CharField(max_length=500,unique=True) 
@@ -57,8 +58,6 @@ class Users(AbstractBaseUser, PermissionsMixin):
         managed = True 
     def __str__(self): 
         return self.email 
-
-
 
 
 class Applications(models.Model): 
@@ -82,7 +81,6 @@ class Applications(models.Model):
         managed = True 
     def __str__(self): 
         return self.title 
-  
   
   
 class Applicationscomponents(models.Model): 

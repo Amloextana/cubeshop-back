@@ -30,6 +30,8 @@ schema_view = get_schema_view(
  
 urlpatterns = [
    path('', include(router.urls)),
+
+   #COMPONENTS
    path(r'components/', views.get_components, name='components-list'),#GET - получить список всех компонентов
    path(r'components/post/', views.post_component, name='components-post'),#POST - добавить новый компонент
    path(r'components/<int:pk>/image/post/', views.postImageToComponent), #POST - добавить изображение
@@ -46,10 +48,11 @@ urlpatterns = [
    path(r'applications/<int:pk>/update_by_user/', views.update_by_user, name='update_by_user'),#PUT - изменение статуса пользователем
    path(r'applications/<int:pk>/update_by_admin/', views.update_by_admin, name='update_by_admin'),#PUT - изменение статуса модератором
 
-
+   #COMPONENTS IN APPLICATION
    path(r"applications/<int:application_id>/delete_component/<int:component_id>/", views.delete_component_from_application),#DELETE - удалить компонент из заявки
    path(r"applications/<int:application_id>/update_amount/<int:component_id>/", views.update_component_amount),#PUT - изменить кол-во компонентов в заявке
-    
+   
+   #AUTH
    path('create/',  views.create, name='create'),
    path('login/',  views.login_view, name='login'),
    path('logout/', views.logout_view, name='logout'),

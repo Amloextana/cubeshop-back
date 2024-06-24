@@ -191,9 +191,7 @@ def get_components(request, format=None):
         print(category)
         components = components.filter(category=category)
     try:
-        print('vvv')
         access_token = request.COOKIES["access_token"]
-        print('aaaaaa')
         username = session_storage.get(access_token).decode('utf-8')
         user_ind = Users.objects.filter(email=username).first()
         application = Applications.objects.filter(customer_id=user_ind.id, status=1).values_list('id', flat=True).first()
